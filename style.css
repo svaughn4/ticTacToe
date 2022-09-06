@@ -1,12 +1,12 @@
 .container{
     display: grid;
     grid-template-columns: repeat(3, 20vw);
-    grid-template-rows: repeat(3, 28vh);
+    grid-template-rows: repeat(3, 25vh);
 }
 
 .container > div{
     width: 20vw;
-    height: 28vh;
+    height: 25vh;
     border: 1px solid black;
     background-color: rgb(188, 188, 244);
     font-size: 60px;
