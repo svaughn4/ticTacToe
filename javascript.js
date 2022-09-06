@@ -2,21 +2,18 @@
 let grid = document.getElementsByClassName('cells')
 grid = Array.from(grid)
 grid.forEach( (element) => {
-    element.addEventListener('mouseup', () => {
-        makeMove(element)
+    element.addEventListener('mouseup', (e) => {
+        if(controller.status == false) {
+            makeMove(element)
+        } else {
+            e.stopPropagation()
+        }
     })
 })
 
 // Create the game board object 
-const gameboard = (() => { 
-    const board = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
-
-    const clear = () => { 
-        board = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
-        grid.forEach((element) => { 
-            element.textContent = ""
-        })
-    }
+let gameboard = (() => { 
+    let board = ['-', '-', '-', '-', '-', '-', '-', '-', '-'] 
     return {board}
 })();
 
@@ -25,48 +22,75 @@ const board = gameboard.board
 // Keep track of the players
 let players = []
 
+// Add click event listener to form submit button
+const submit = document.getElementById('submit')
+const name1 = document.getElementById('player1')
+const name2= document.getElementById('player2')
+
+
+// Submit button sends object to player factory function
+submit.addEventListener('click', () => { 
+    const player1 = playerFactory(name1.value)
+    players.push(player1)
+    const player2 = playerFactory(name2.value)
+    players.push(player2)
+    controller.turn = player1
+    console.log(controller.turn)
+    controls.updateMessage()
+})
+
 // Message field on the page
 let message = document.getElementById('message')
 
 // Create a player object with their name and board mark
-const playerFactory = (name) => {
+const playerFactory = (string) => {
     if(players.length == 0) { 
         const style = 'X'
-        return {name, style}
+        const who = string
+        return {who, style}
     } else {
         const style = 'O'
-        return {name, style}
+        const who = string
+        return {who, style}
     }
 }
-
-const player1 = playerFactory('Sydney')
-players.push(player1)
-const player2 = playerFactory('Vaughn') 
-players.push(player2) 
 
 // Create game controller
 const controller = (() => {
     // Turn property keeps track of who makes the current move
-    const turn = player1
+    let turn = players[0]
     // Status property remains false until someone wins or a tie
-    const status = false;
-    return{turn, status}
+    let status = false
+    // Method property as to the kind of result; tie or win 
+    let method = ''
+    return{turn, status, method}
 })();
 
-function updateMessage() {
-    message.textContent = `${controller.turn.name}` + ', select a square'
-}
+const controls = (() => {
+    const updateMessage = () => {
+        let cur = controller.turn
+        message.textContent = `${cur.who}` + ', select a square'
+    }
+    // Checks if the corresponding grid cell is clear in the gameboard array
+    const checkMove = (pos) => { 
+        for(let i = 0; i < gameboard.board.length; i++) {
+            if (i == pos - 1 && gameboard.board[i] != '-') {
+                return false
+            }
+        } return true
+    } 
+    const restart = () => { 
+        gameboard.board = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
+        grid.forEach((element) => { 
+            element.textContent = ""
+        })
+        gameboard.status = false
+        players = []
+    }
+    return {updateMessage, checkMove, restart}
+})() 
 
-updateMessage()
 
-// Checks if the corresponding grid cell is clear in the gameboard array
-function checkMove(pos) { 
-    for(let i = 0; i < gameboard.board.length; i++) {
-        if (i == pos - 1 && gameboard.board[i] != '-') {
-            return false
-        }
-    } return true
-}
 
 
 // Updates controller status to true if a player has won otherwise remains false
@@ -78,6 +102,7 @@ const hasWon = () => {
             console.log(board[i], board[i+1], board[i+2])
             if((board[i] == 'O' && board[i+1] == 'O' && board[i+2] == 'O') || (board[i] == 'X' && board[i+1] == 'X' && board[i+2] == 'X') ){ 
                 controller.status = true
+                controller.method = 'win'
                 console.log('row')
             }
         }
@@ -87,6 +112,7 @@ const hasWon = () => {
         for(let i = 0; i <= 2; i++) {
             if(board[i] == 'O' && board[i+3] == 'O' && board[i+6] == 'O' || board[i] == 'X' && board[i+3] == 'X' && board[i+6] == 'X'){
                 controller.status = true
+                controller.method = 'win'
                 console.log('column')
             }
         }
@@ -97,6 +123,7 @@ const hasWon = () => {
             if(i == 0) { 
                 if(board[0] == 'O' && board[4] == 'O' && board[8] == 'O' || board[i] == 'X' && board[4] == 'X' && board[8] == 'X') { 
                     controller.status = true
+                    controller.method = 'win'
                     console.log('diagonal')
                 }
             } else if (i == 2) { 
@@ -111,6 +138,7 @@ const hasWon = () => {
     const tieWin = () => {
         if(controller.status == false && board.every(element => element == 'X' || element == 'O')) { 
             controller.status = true
+            controller.method = 'tie'
             console.log('tie')
         }
     }
@@ -123,7 +151,7 @@ function makeMove(element){
     let num = element.id
     let who = controller.turn
     // Checks if player is able to make a move
-    if(checkMove(num)) {
+    if(controls.checkMove(num)) {
         gameboard.board[num-1] = `${who.style}`
         element.textContent = `${who.style}`
     }
@@ -138,16 +166,22 @@ function makeMove(element){
     // Alters game controller to next player if game continues
     if(controller.status == false) { 
         // Switch the turn to the other player
-        if(controller.turn == player1) {
-            controller.turn = player2
-        } else controller.turn = player1
-        updateMessage()
-
+        if(controller.turn == players[0]) {
+            controller.turn = players[1]
+        } else controller.turn = players[0]
+        controls.updateMessage()
     // Else a player has won or there's a tie
     } else {
-        alert('Game is over!' + " " + `${controller.turn.name}` + ' won the game!')
-        
+        if(controller.method != 'tie'){
+            alert('Game is over!' + " " + `${controller.turn.who}` + ' won the game!')
+        } else {
+            alert('Game is over! It was a tie!')
+        }
     }
 }
 
+// Add clear board function to reset button
+const reset = document.getElementById('reset').addEventListener('click', () => controls.restart())
 
+
+// Show a win display

@@ -10,17 +10,35 @@
 </head>
 <body>
     <h1>Tic Tac Toe</h1>
-    <h2 id="message"></h2>
-    <div class="container">
-        <div class="cells" id="1"></div>
-        <div class="cells" id="2"></div>
-        <div class="cells" id="3"></div>
-        <div class="cells" id="4"></div>
-        <div class="cells" id="5"></div>
-        <div class="cells" id="6"></div>
-        <div class="cells" id="7"></div>
-        <div class="cells" id="8"></div>
-        <div class="cells" id="9"></div>
+    <div class="rest">
+        <div class="controls">
+            <form action="" method="get">
+                <div class="first">
+                    <label for="player1">Player 1 Name:</label><br>
+                    <input type="text" id='player1' name="name1"><br>
+                </div>
+                <div class="second">
+                    <label for="player2">Player 2 Name:</label><br>
+                    <input type="text" id="player2" name="name2"><br>
+                </div>
+                <input type="button" value="Submit" id="submit">
+            </form>
+            <button id="reset">Reset</button>
+        </div>
+        <div class="main">
+            <h2 id="message"></h2>
+            <div class="container">
+                <div class="cells" id="1"></div>
+                <div class="cells" id="2"></div>
+                <div class="cells" id="3"></div>
+                <div class="cells" id="4"></div>
+                <div class="cells" id="5"></div>
+                <div class="cells" id="6"></div>
+                <div class="cells" id="7"></div>
+                <div class="cells" id="8"></div>
+                <div class="cells" id="9"></div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

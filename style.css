@@ -1,21 +1,55 @@
 .container{
     display: grid;
-    grid-template-columns: repeat(3, 20vw);
-    grid-template-rows: repeat(3, 25vh);
+    grid-template-columns: repeat(3, 15vw);
+    grid-template-rows: repeat(3, 20vh);
 }
 
 .container > div{
-    width: 20vw;
-    height: 25vh;
+    width: 15vw;
+    height: 20vh;
     border: 1px solid black;
     background-color: rgb(188, 188, 244);
     font-size: 60px;
     text-align: center;
-    line-height: 400%;
+    line-height: 250%;
 }
 
 body{ 
     display: flex;
     flex-direction: column; 
     align-items: center;
+}
+
+.rest{
+    display: flex;
+    gap: 20px;
+}
+
+form>div>input, #reset, label, form>input {
+    font-size: 20px;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.controls{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+#reset {
+    font-weight: 800;
+    background-color: red;
 }
