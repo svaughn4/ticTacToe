@@ -53,3 +53,7 @@ form{
     font-weight: 800;
     background-color: red;
 }
+
+input:invalid:required {
+    border: 2px solid red; 
+}

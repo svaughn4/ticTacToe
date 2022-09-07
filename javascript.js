@@ -1,43 +1,53 @@
-// Add click event listener to each grid cell
-let grid = document.getElementsByClassName('cells')
-grid = Array.from(grid)
-grid.forEach( (element) => {
-    element.addEventListener('mouseup', (e) => {
-        if(controller.status == false) {
-            makeMove(element)
-        } else {
-            e.stopPropagation()
-        }
-    })
-})
-
 // Create the game board object 
 let gameboard = (() => { 
     let board = ['-', '-', '-', '-', '-', '-', '-', '-', '-'] 
     return {board}
 })();
 
-const board = gameboard.board
-
 // Keep track of the players
 let players = []
+
+// Define the cells of the grid
+let grid = document.getElementsByClassName('cells')
+grid = Array.from(grid)
 
 // Add click event listener to form submit button
 const submit = document.getElementById('submit')
 const name1 = document.getElementById('player1')
-const name2= document.getElementById('player2')
+const name2= document.getElementById('player2') 
 
+// Add click events to each of the grid cells
+const activateCells = (() => {
+    const start = () => {
+        console.log('start runs')
+        grid.forEach( (element) => {
+            element.addEventListener('click', () => { 
+                if(controller.status == false && players.length == 1) {
+                    makeMove(element)
+                } else if(controller.status == true){
+                     e.stopPropagation()
+                }
+            })
+        })
+    }
+    return {start}
+})()
+activateCells.start()
 
-// Submit button sends object to player factory function
-submit.addEventListener('click', () => { 
+function submitInfo () {
     const player1 = playerFactory(name1.value)
     players.push(player1)
     const player2 = playerFactory(name2.value)
-    players.push(player2)
-    controller.turn = player1
-    console.log(controller.turn)
+    players.push(player2) 
+    // Controller stores the first player object from the array
+    // Only store 1 player in the object at a time
+    controller.turn = players.shift()
     controls.updateMessage()
-})
+    //submit.removeEventListener('click', submitInfo)
+}
+
+// Submit button sends object to player factory function
+submit.addEventListener('click', submitInfo)
 
 // Message field on the page
 let message = document.getElementById('message')
@@ -58,7 +68,7 @@ const playerFactory = (string) => {
 // Create game controller
 const controller = (() => {
     // Turn property keeps track of who makes the current move
-    let turn = players[0]
+    let turn = {}
     // Status property remains false until someone wins or a tie
     let status = false
     // Method property as to the kind of result; tie or win 
@@ -66,10 +76,25 @@ const controller = (() => {
     return{turn, status, method}
 })();
 
-const controls = (() => {
-    const updateMessage = () => {
-        let cur = controller.turn
-        message.textContent = `${cur.who}` + ', select a square'
+// BUG: Each time I click on a div, runs controls.start twice
+const controls = (function() {
+    // Add click event listener to each grid cell
+    const start = () => {
+        console.log('start runs')
+        grid.forEach( (element) => {
+            element.addEventListener('click', () => { 
+                if(controller.status == false && players.length == 1) {
+                    makeMove(element)
+                } else if(controller.status == true){
+                     e.stopPropagation()
+                }
+            })
+        })
+    }
+
+    const updateMessage = () => { 
+        console.log('message is updated')
+        message.textContent = `${controller.turn.who}` + ', select a square'
     }
     // Checks if the corresponding grid cell is clear in the gameboard array
     const checkMove = (pos) => { 
@@ -81,39 +106,41 @@ const controls = (() => {
     } 
     const restart = () => { 
         gameboard.board = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
-        grid.forEach((element) => { 
+        grid.forEach( (element) => {
             element.textContent = ""
         })
-        gameboard.status = false
+        // Clear the player array
         players = []
+        // Clear the player info form 
+        let form = document.getElementById('form').reset()
+        message.textContent = ""
+        controller.turn = {}
+        controller.status = false
+        console.log(controller.turn)
+        controller.method = ""
+        submit.addEventListener('click', submitInfo)
     }
-    return {updateMessage, checkMove, restart}
+    return {start, updateMessage, checkMove, restart}
 })() 
-
-
 
 
 // Updates controller status to true if a player has won otherwise remains false
 const hasWon = () => { 
     // Check for a row win
     const rowWins = () => { 
-        for(let i = 0; i <= 6; i+=3) { 
-            //console.log(i, i+1, i+2, 'row', controller.status)
-            console.log(board[i], board[i+1], board[i+2])
-            if((board[i] == 'O' && board[i+1] == 'O' && board[i+2] == 'O') || (board[i] == 'X' && board[i+1] == 'X' && board[i+2] == 'X') ){ 
+        for(let i = 0; i <= 6; i+=3) {
+            if((gameboard.board[i] == 'O' && gameboard.board[i+1] == 'O' && gameboard.board[i+2] == 'O') || (gameboard.board[i] == 'X' && gameboard.board[i+1] == 'X' && gameboard.board[i+2] == 'X') ){ 
                 controller.status = true
                 controller.method = 'win'
-                console.log('row')
             }
         }
     }
     // Check for a column win
     const columnWins = () => { 
         for(let i = 0; i <= 2; i++) {
-            if(board[i] == 'O' && board[i+3] == 'O' && board[i+6] == 'O' || board[i] == 'X' && board[i+3] == 'X' && board[i+6] == 'X'){
+            if(gameboard.board[i] == 'O' && gameboard.board[i+3] == 'O' && gameboard.board[i+6] == 'O' || gameboard.board[i] == 'X' && gameboard.board[i+3] == 'X' && gameboard.board[i+6] == 'X'){
                 controller.status = true
                 controller.method = 'win'
-                console.log('column')
             }
         }
     }
@@ -121,25 +148,22 @@ const hasWon = () => {
     const diagonalWins = () => { 
         for(let i = 0; i <= 2; i+=2) { 
             if(i == 0) { 
-                if(board[0] == 'O' && board[4] == 'O' && board[8] == 'O' || board[i] == 'X' && board[4] == 'X' && board[8] == 'X') { 
+                if(gameboard.board[0] == 'O' && gameboard.board[4] == 'O' && gameboard.board[8] == 'O' || gameboard.board[i] == 'X' && gameboard.board[4] == 'X' && gameboard.board[8] == 'X') { 
                     controller.status = true
                     controller.method = 'win'
-                    console.log('diagonal')
                 }
             } else if (i == 2) { 
-                if(board[i] == 'O' && board[4] == 'O' && board[6] == 'O' || board[i] == 'X' && board[2] == 'X' && board[6] == 'X') {
+                if(gameboard.board[i] == 'O' && gameboard.board[4] == 'O' && gameboard.board[6] == 'O' || gameboard.board[i] == 'X' && gameboard.board[2] == 'X' && gameboard.board[6] == 'X') {
                     controller.status = true
-                    console.log('diagonal')
                 }
             } 
         }
     }
     // Checks for a tie
     const tieWin = () => {
-        if(controller.status == false && board.every(element => element == 'X' || element == 'O')) { 
+        if(controller.status == false && gameboard.board.every(element => element == 'X' || element == 'O')) { 
             controller.status = true
             controller.method = 'tie'
-            console.log('tie')
         }
     }
     return {rowWins, columnWins, diagonalWins, tieWin}
@@ -147,13 +171,12 @@ const hasWon = () => {
 
 // Handles click event from players to occupy a new square
 function makeMove(element){ 
+    console.log('makeMoveRun')
     // Get cell's id number to check with array
-    let num = element.id
-    let who = controller.turn
     // Checks if player is able to make a move
-    if(controls.checkMove(num)) {
-        gameboard.board[num-1] = `${who.style}`
-        element.textContent = `${who.style}`
+    if(controls.checkMove(element.id)) {
+        gameboard.board[element.id-1] = `${controller.turn.style}`
+        element.textContent = `${controller.turn.style}`
     }
 
     // Checks if after move a player has won or tied
@@ -165,11 +188,13 @@ function makeMove(element){
 
     // Alters game controller to next player if game continues
     if(controller.status == false) { 
-        // Switch the turn to the other player
-        if(controller.turn == players[0]) {
-            controller.turn = players[1]
-        } else controller.turn = players[0]
-        controls.updateMessage()
+        if(controller.turn != players[0]) {
+            console.log(controller.turn.who, 'BEFORE')
+            players.push(controller.turn)
+            controller.turn = players.shift()
+            controls.updateMessage()
+            console.log(controller.turn.who, 'AFTER')
+        }
     // Else a player has won or there's a tie
     } else {
         if(controller.method != 'tie'){
@@ -181,7 +206,4 @@ function makeMove(element){
 }
 
 // Add clear board function to reset button
-const reset = document.getElementById('reset').addEventListener('click', () => controls.restart())
-
-
-// Show a win display
+const reset = document.getElementById('reset').addEventListener('click', controls.restart)
