@@ -43,7 +43,7 @@ function submitInfo () {
     // Only store 1 player in the object at a time
     controller.turn = players.shift()
     controls.updateMessage()
-    //submit.removeEventListener('click', submitInfo)
+    submit.removeEventListener('click', submitInfo)
 }
 
 // Submit button sends object to player factory function
