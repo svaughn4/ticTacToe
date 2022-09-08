@@ -1,17 +1,22 @@
 .container{
     display: grid;
-    grid-template-columns: repeat(3, 15vw);
-    grid-template-rows: repeat(3, 20vh);
+    grid-template-columns: repeat(3, 10vw);
+    grid-template-rows: repeat(3, 15vh);
 }
 
 .container > div{
-    width: 15vw;
-    height: 20vh;
-    border: 1px solid black;
-    background-color: rgb(188, 188, 244);
+    width: 10vw;
+    height: 15vh;
+    border: 1px solid white;
+    background-color: rgb(217, 244, 215);
     font-size: 60px;
     text-align: center;
-    line-height: 250%;
+    line-height: 200%;
+}
+
+h1{
+    font-size: 50px;
+    align-self:center;
 }
 
 body{ 
@@ -19,11 +24,15 @@ body{
     flex-direction: column; 
     align-items: center;
     font-family: 'Fredoka One', cursive;
+    background-color: rgb(148, 148, 148);
+    color: white
+
 }
 
 .rest{
-    display: flex;
-    gap: 20px;
+    display: flex; 
+    justify-self: flex-end;
+    gap: 80px;
 }
 
 form>div>input, #reset, label, form>input {
@@ -31,7 +40,16 @@ form>div>input, #reset, label, form>input {
     font-family: 'Fredoka One', cursive;
 }
 
+#submit{
+    background-color: green;
+}
+
+#reset, #submit{
+    color:white
+}
+
 .main {
+    justify-self: flex-end;
     display: flex;
     flex-direction: column;
     align-items: center;
