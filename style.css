@@ -18,6 +18,7 @@ body{
     display: flex;
     flex-direction: column; 
     align-items: center;
+    font-family: 'Fredoka One', cursive;
 }
 
 .rest{
@@ -27,6 +28,7 @@ body{
 
 form>div>input, #reset, label, form>input {
     font-size: 20px;
+    font-family: 'Fredoka One', cursive;
 }
 
 .main {
@@ -55,5 +57,9 @@ form{
 }
 
 input:invalid:required {
-    border: 2px solid red; 
+    border: 2px solid rgb(251, 203, 203); 
+}
+
+input:required:invalid {
+    content:'*';
 }

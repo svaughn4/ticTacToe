@@ -11,15 +11,24 @@ let players = []
 let grid = document.getElementsByClassName('cells')
 grid = Array.from(grid)
 
-// Add click event listener to form submit button
 const submit = document.getElementById('submit')
 const name1 = document.getElementById('player1')
-const name2= document.getElementById('player2') 
+const name2= document.getElementById('player2')  
+
+submit.addEventListener('click', required)
+
+// Checks if both the name fields are filled
+function required () {
+    if(!name1.value || !name2.value) {
+        return false
+    } else {
+        return true
+    }
+} 
 
 // Add click events to each of the grid cells
 const activateCells = (() => {
     const start = () => {
-        console.log('start runs')
         grid.forEach( (element) => {
             element.addEventListener('click', () => { 
                 if(controller.status == false && players.length == 1) {
@@ -34,6 +43,7 @@ const activateCells = (() => {
 })()
 activateCells.start()
 
+
 function submitInfo () {
     const player1 = playerFactory(name1.value)
     players.push(player1)
@@ -43,11 +53,13 @@ function submitInfo () {
     // Only store 1 player in the object at a time
     controller.turn = players.shift()
     controls.updateMessage()
-    submit.removeEventListener('click', submitInfo)
+    submit.removeEventListener('click', required)
 }
 
 // Submit button sends object to player factory function
-submit.addEventListener('click', submitInfo)
+if(required) {
+    submit.addEventListener('click', submitInfo)
+}
 
 // Message field on the page
 let message = document.getElementById('message')
@@ -76,7 +88,7 @@ const controller = (() => {
     return{turn, status, method}
 })();
 
-// BUG: Each time I click on a div, runs controls.start twice
+
 const controls = (function() {
     // Add click event listener to each grid cell
     const start = () => {
@@ -93,8 +105,7 @@ const controls = (function() {
     }
 
     const updateMessage = () => { 
-        console.log('message is updated')
-        message.textContent = `${controller.turn.who}` + ', select a square'
+        if(name1.value != '' && name2.value != '') message.textContent = `${controller.turn.who}` + ', select a square'
     }
     // Checks if the corresponding grid cell is clear in the gameboard array
     const checkMove = (pos) => { 
@@ -118,7 +129,7 @@ const controls = (function() {
         controller.status = false
         console.log(controller.turn)
         controller.method = ""
-        submit.addEventListener('click', submitInfo)
+        submit.addEventListener('click', required)
     }
     return {start, updateMessage, checkMove, restart}
 })() 
